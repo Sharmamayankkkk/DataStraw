@@ -25,10 +25,25 @@ export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userEmail = localStorage.getItem('userEmail') || '';
+  const currentUser = userEmail 
+    ? userEmail.split('@')[0].split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ') 
+    : '';
+
+  // Get user role
+  const teamMembers = JSON.parse(localStorage.getItem('teamMembers') || '[]');
+  const userMember = teamMembers.find((m: any) => m.email === userEmail);
+  const isAgent = userMember?.role === 'Support Agent' || !userEmail.includes('admin');
+
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get(`${API_URL}/tickets`);
+        const params = new URLSearchParams();
+        if (isAgent && currentUser) {
+          params.append('assignee', currentUser);
+        }
+        
+        const response = await axios.get(`${API_URL}/tickets?${params.toString()}`);
         setTickets(response.data);
       } catch (error) {
         console.error('Failed to fetch tickets for analytics:', error);
@@ -37,7 +52,7 @@ export default function Dashboard() {
       }
     };
     fetchTickets();
-  }, []);
+  }, [isAgent, currentUser]);
 
   // Compute Data for Status Chart
   const statusCounts = tickets.reduce((acc, ticket) => {

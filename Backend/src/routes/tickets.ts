@@ -49,9 +49,20 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
 // GET /api/tickets/stats
 router.get('/stats', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { data, error } = await supabase
+    const { status, search, assignee } = req.query;
+
+    let query = supabase
       .from('tickets')
-      .select('status, priority');
+      .select('status, priority, assignee, customer_name, customer_email, subject, description, ticket_id');
+
+    if (status) query = query.eq('status', status as string);
+    if (assignee) query = query.eq('assignee', assignee as string);
+    if (search) {
+      const searchTerm = `%${search}%`;
+      query = query.or(`customer_name.ilike.${searchTerm},customer_email.ilike.${searchTerm},subject.ilike.${searchTerm},description.ilike.${searchTerm},ticket_id.ilike.${searchTerm}`);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 
@@ -69,17 +80,20 @@ router.get('/stats', async (req: Request, res: Response): Promise<any> => {
 
 // GET /api/tickets
 router.get('/', async (req: Request, res: Response): Promise<any> => {
+  console.log("HELLO FROM TICKETS ROUTE! Key:", process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 10));
   try {
-    const { status, search } = req.query;
+    const { status, search, assignee } = req.query;
 
     let query = supabase
       .from('tickets')
-      .select('ticket_id, customer_name, subject, status, priority, assignee, created_at, updated_at, is_pinned')
-      .order('is_pinned', { ascending: false, nullsFirst: false })
-      .order('updated_at', { ascending: false });
+      .select('ticket_id, customer_name, subject, status, priority, assignee, created_at, updated_at, is_pinned');
 
     if (status) {
       query = query.eq('status', status as string);
+    }
+
+    if (assignee) {
+      query = query.eq('assignee', assignee as string);
     }
 
     if (search) {
@@ -87,7 +101,13 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
       query = query.or(`customer_name.ilike.${searchTerm},customer_email.ilike.${searchTerm},subject.ilike.${searchTerm},description.ilike.${searchTerm},ticket_id.ilike.${searchTerm}`);
     }
 
+    query = query
+      .order('is_pinned', { ascending: false, nullsFirst: false })
+      .order('updated_at', { ascending: false });
+
+    console.log('Executing /tickets query with params:', req.query);
     const { data, error } = await query;
+    console.log('Query result length:', data?.length, 'Error:', error);
 
     if (error) throw error;
 

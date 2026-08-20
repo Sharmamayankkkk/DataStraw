@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { supabase } from '../supabaseClient';
+import { supabase, supabaseAuth } from '../supabaseClient';
 
 const router = Router();
 
@@ -8,8 +8,17 @@ router.post('/login', async (req: Request, res: Response): Promise<any> => {
   try {
     const { email, password } = req.body;
     
-    // Get client IP
-    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
+    // Get client IP using Express's built-in req.ip (respects 'trust proxy')
+    let clientIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    
+    // Normalize IPv6 loopback and IPv4-mapped IPv6 to standard IPv4 for readable logs
+    if (clientIp === '::1') {
+      clientIp = '127.0.0.1';
+    } else if (typeof clientIp === 'string' && clientIp.startsWith('::ffff:')) {
+      clientIp = clientIp.replace('::ffff:', '');
+    } else if (Array.isArray(clientIp)) {
+      clientIp = clientIp[0];
+    }
     
     // Check login attempts table
     const { data: attemptRecord, error: attemptError } = await supabase
@@ -22,8 +31,8 @@ router.post('/login', async (req: Request, res: Response): Promise<any> => {
       return res.status(403).json({ error: 'Your IP is permanently banned due to too many failed login attempts.' });
     }
 
-    // Attempt login with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    // Attempt login with Supabase using the Auth client (so we don't mutate the global Service Role client)
+    const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
       email,
       password,
     });

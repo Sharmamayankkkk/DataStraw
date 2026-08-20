@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import ticketRoutes from './routes/tickets';
 import authRoutes from './routes/auth';
 import uploadRoutes from './routes/upload';
+import { verifyAuth } from './middleware/auth';
 import path from 'path';
 
 dotenv.config();
@@ -41,8 +42,8 @@ app.use('/api/auth', authLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/tickets', ticketRoutes);
-app.use('/api/upload', uploadRoutes);
+app.use('/api/tickets', verifyAuth, ticketRoutes);
+app.use('/api/upload', verifyAuth, uploadRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -61,13 +61,24 @@ export default function Home() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [stats, setStats] = useState<TicketStats>({ total: 0, open: 0, urgent: 0, inProgress: 0 });
   const [loading, setLoading] = useState(true);
+  const userEmail = localStorage.getItem('userEmail') || '';
+  const currentUser = userEmail 
+    ? userEmail.split('@')[0].split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ') 
+    : '';
+
+  // Get user role
+  const teamMembers = JSON.parse(localStorage.getItem('teamMembers') || '[]');
+  const userMember = teamMembers.find((m: any) => m.email === userEmail);
+  const isAgent = userMember?.role === 'Support Agent' || !userEmail.includes('admin');
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState(isAgent ? currentUser : '');
   
   useEffect(() => {
     fetchData();
-  }, [search, statusFilter, priorityFilter]);
+  }, [search, statusFilter, priorityFilter, assigneeFilter]);
 
   const fetchData = async () => {
     try {
@@ -76,10 +87,11 @@ export default function Home() {
       if (search) params.append('search', search);
       if (statusFilter) params.append('status', statusFilter);
       if (priorityFilter) params.append('priority', priorityFilter);
+      if (assigneeFilter) params.append('assignee', assigneeFilter);
 
       const [ticketsRes, statsRes] = await Promise.all([
         axios.get(`${API_URL}/tickets?${params.toString()}`),
-        axios.get(`${API_URL}/tickets/stats`)
+        axios.get(`${API_URL}/tickets/stats?${params.toString()}`)
       ]);
 
       setTickets(ticketsRes.data);
@@ -131,7 +143,18 @@ export default function Home() {
             />
           </div>
           
-          <div className="flex w-full sm:w-auto items-center gap-3">
+          <div className="flex w-full sm:w-auto items-center gap-3 flex-wrap">
+             <select 
+               value={assigneeFilter}
+               onChange={(e) => setAssigneeFilter(e.target.value)}
+               className="bg-bg-primary border border-border-subtle text-text-primary text-sm rounded-lg focus:outline-none focus:border-text-secondary block w-full sm:w-auto px-3 py-1.5 transition-colors appearance-none"
+               style={{ backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%23a1a1aa\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3e%3c/svg%3e")', backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+             >
+               {!isAgent && <option value="">{t('All Assignees')}</option>}
+               {currentUser && <option value={currentUser}>{t('My Tickets')}</option>}
+               <option value="Unassigned">{t('Unassigned')}</option>
+             </select>
+
              <select 
                value={statusFilter}
                onChange={(e) => setStatusFilter(e.target.value)}

@@ -117,7 +117,11 @@ function App() {
                <User className="w-4 h-4 text-text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">Admin User</p>
+              <p className="text-sm font-medium text-text-primary truncate">
+                {userEmail 
+                  ? userEmail.split('@')[0].split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ') 
+                  : 'Admin User'}
+              </p>
               <p className="text-xs text-text-secondary truncate">{userEmail || 'admin@support.com'}</p>
             </div>
             <button 
