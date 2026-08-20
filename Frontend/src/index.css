@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* 1. Background System - Deep Obsidian Hierarchy */
+  --color-bg-primary: #050505;
+  --color-bg-secondary: #0a0a0a;
+  
+  /* 2. Surface System - Elevated panels and interactive areas */
+  --color-surface: #0f0f0f;
+  --color-surface-hover: #141414;
+  --color-surface-active: #1a1a1a;
+  
+  /* 3. Border System - Extremely Subtle */
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+  
+  /* 4. Typography System - Controlled Contrast */
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  
+  /* 5. Brand/Accent System - Platinum/Electric White */
+  --color-brand-primary: #e4e4e7;
+  --color-brand-secondary: #ffffff;
+  
+  /* 6. Status & Priority System - Functional but Premium */
+  --color-status-success: #34d399;
+  --color-status-success-bg: rgba(52, 211, 153, 0.1);
+  --color-status-warning: #fbbf24;
+  --color-status-warning-bg: rgba(251, 191, 36, 0.1);
+  --color-status-danger: #f87171;
+  --color-status-danger-bg: rgba(248, 113, 113, 0.1);
+  --color-status-info: #60a5fa;
+  --color-status-info-bg: rgba(96, 165, 250, 0.1);
+
+  --color-priority-urgent: #ef4444;
+  --color-priority-urgent-bg: rgba(239, 68, 68, 0.12);
+  --color-priority-high: #f97316;
+  --color-priority-high-bg: rgba(249, 115, 22, 0.12);
+  --color-priority-med: #f59e0b;
+  --color-priority-med-bg: rgba(245, 158, 11, 0.12);
+  --color-priority-low: #94a3b8;
+  --color-priority-low-bg: rgba(148, 163, 184, 0.12);
+}
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    /* Deep obsidian base with an almost imperceptible ambient noise/gradient effect */
+    background-color: var(--color-bg-primary);
+    background-image: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.02) 0%, transparent 70%);
+    background-attachment: fixed;
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+
+  /* Improve default scrollbar for a premium feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-surface-hover);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-strong);
+  }
+
+  /* Fix Webkit Autofill for Dark Theme */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--color-bg-primary) inset !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+    caret-color: var(--color-text-primary) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+/* 7. Premium Utility Components */
+@layer utilities {
+  /* 
+    Flat Panel:
+    Obsidian surface + 1px graphite border + subtle inner highlight + deep ambient shadow 
+  */
+  .flat-panel {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.03), /* Subtle top highlight */
+      0 4px 24px -4px rgba(0, 0, 0, 0.5); /* Ambient shadow */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .flat-panel:hover {
+    border-color: rgba(255, 255, 255, 0.09);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 8px 32px -4px rgba(0, 0, 0, 0.6);
+  }
+
+  /* 
+    Flat Input:
+    Near-black background, subtle border, soft inner depth, elegant focus state
+  */
+  .flat-input {
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-primary);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .flat-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .flat-input:focus {
+    outline: none;
+    border-color: var(--color-border-strong);
+    background-color: var(--color-surface);
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.2),
+      0 0 0 2px rgba(255, 255, 255, 0.05); /* Subtle accent focus ring */
+  }
+
+  /* 
+    Flat Button (Primary CTA):
+    Dark/black base with subtle gradient, elegant active state, proper focus ring 
+  */
+  .flat-button {
+    background: linear-gradient(180deg, #222222 0%, #171717 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.08), /* Inner top highlight */
+      0 2px 4px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .flat-button:hover:not(:disabled) {
+    background: linear-gradient(180deg, #2a2a2a 0%, #1f1f1f 100%);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 4px 8px rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .flat-button:active:not(:disabled) {
+    background: #111111;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    transform: translateY(0);
+  }
+
+  .flat-button:focus-visible {
+    outline: none;
+    box-shadow: 
+      0 0 0 2px var(--color-bg-primary),
+      0 0 0 4px rgba(255, 255, 255, 0.2);
+  }
+
+  .flat-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #111111;
+    box-shadow: none;
+  }
+
+  /* 
+    Flat Button Secondary:
+    Dark surface, subtle graphite border, soft hover surface 
+  */
+  .flat-button-secondary {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .flat-button-secondary:hover:not(:disabled) {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-strong);
+    color: #ffffff;
+  }
+
+  .flat-button-secondary:active:not(:disabled) {
+    background-color: var(--color-surface-active);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .flat-button-secondary:focus-visible {
+    outline: none;
+    box-shadow: 
+      0 0 0 2px var(--color-bg-primary),
+      0 0 0 4px rgba(255, 255, 255, 0.1);
+  }
+}
